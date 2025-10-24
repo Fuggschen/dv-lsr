@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<AssemblyName>dv-lsr</AssemblyName>
+		<AssemblyName>LoadingScreenReplacer</AssemblyName>
 		<TargetFramework>net48</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>

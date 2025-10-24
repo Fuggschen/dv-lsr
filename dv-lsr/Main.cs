@@ -11,6 +11,7 @@ namespace LSR;
 public static class Main
 {
 	public static UnityModManager.ModEntry? ModEntry { get; private set; }
+	public static bool enabled { get; private set; } = true;
 	private static string LoadingScreensPath => Path.Combine(ModEntry?.Path ?? "", "LoadingScreens");
 	private static List<Texture2D> customLoadingScreens = new List<Texture2D>();
 	private static System.Random random = new System.Random();
@@ -31,6 +32,8 @@ public static class Main
 			// Patch RandomScreenPicker_OnEnable
 			harmony = new Harmony(modEntry.Info.Id);
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
+			modEntry.OnToggle = OnToggle;
+			modEntry.OnUnload = Unload;
 
 			modEntry.Logger.Log("Loading Screen Replacer loaded successfully!");
 
@@ -53,6 +56,30 @@ public static class Main
 		}
 
 		return true;
+	}
+
+	private static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
+	{
+		enabled = value;
+		Patches.RandomScreenPicker_OnEnable_Patch.SetEnabled(enabled);
+		return true;
+	}
+
+	private static bool Unload(UnityModManager.ModEntry modEntry)
+	{
+		try
+		{
+			ModEntry = modEntry;
+			Harmony? harmony = null;
+			harmony = new Harmony(modEntry.Info.Id);
+			harmony.UnpatchAll(modEntry.Info.Id);
+			return true;
+		}
+		catch (Exception ex)
+		{
+			ModEntry?.Logger.LogException($"Failed to unload {modEntry.Info.DisplayName}:", ex);
+			return false;
+		}
 	}
 
 	private static void LoadCustomLoadingScreens()
@@ -84,7 +111,6 @@ public static class Main
 				{
 					texture.name = Path.GetFileNameWithoutExtension(file);
 					customLoadingScreens.Add(texture);
-					ModEntry?.Logger.Log($"  - Loaded: {texture.name}");
 				}
 				else
 				{
@@ -102,45 +128,5 @@ public static class Main
 	public static Texture2D? GetRandomLoadingScreen()
 	{
 		return customLoadingScreens.Count == 0 ? null : customLoadingScreens[random.Next(customLoadingScreens.Count)];
-	}
-}
-
-[HarmonyPatch(typeof(RandomScreenPicker), "OnEnable")]
-public static class RandomScreenPicker_OnEnable_Patch
-{
-	static bool Prefix(RandomScreenPicker __instance)
-	{
-		// Check if we have any custom loading screens
-		var customTexture = Main.GetRandomLoadingScreen();
-		if (customTexture == null)
-		{
-			// No custom screens, let the original method run
-			return true;
-		}
-
-		try
-		{
-			// Get the displayComponent field
-			var displayField = typeof(RandomScreenPicker).GetField("displayComponent", BindingFlags.Public | BindingFlags.Instance);
-			if (displayField != null)
-			{
-				var displayComponent = displayField.GetValue(__instance) as UnityEngine.UI.RawImage;
-				if (displayComponent != null)
-				{
-					displayComponent.texture = customTexture;
-					displayComponent.color = Color.white;
-					Main.ModEntry?.Logger.Log($"Displaying custom loading screen: {customTexture.name}");
-				}
-			}
-
-			// Skip the original method since we've set our custom texture
-			return false;
-		}
-		catch (Exception ex)
-		{
-			Main.ModEntry?.Logger.LogException("Error displaying custom loading screen:", ex);
-			// Fall back to original on error
-			return true;
-		}
 	}
 }

@@ -4,6 +4,11 @@
 			"Id": "dv-lsr",
 			"Version": "1.0.0",
 			"DownloadUrl": "https://github.com/Fuggschen/dv-lsr/releases/download/v1.0.0/LoadingScreenReplacer_v1.0.0.zip"
+		},
+		{
+			"Id": "dv-lsr",
+			"Version": "1.0.1",
+			"DownloadUrl": "https://github.com/Fuggschen/dv-lsr/releases/download/v1.0.1/LoadingScreenReplacer_v1.0.1.zip"
 		}
 	]
 }

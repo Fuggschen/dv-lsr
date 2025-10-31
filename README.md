@@ -10,7 +10,7 @@ Replaces the game's loading screens with your own images. Keeps the original loa
 - Install via Unity Mod Manager
 
 ## Usage
-- Put images into `Derail Valley/Mods/dv-lsr/LoadingScreens`
+- Put images into `Derail Valley/Mods/LoadingScreenReplacer/LoadingScreens`
 - Supported: .png, .jpg, .jpeg
 - One image is chosen at random each time
 - Recommended: 16:9, 1920x1080 or higher
